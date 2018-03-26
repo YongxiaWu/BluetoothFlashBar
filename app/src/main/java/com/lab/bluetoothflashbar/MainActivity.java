@@ -90,10 +90,14 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }, 5000);
+
+        // 开始扫描
         scanner.startScan(new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
-                Log.i(TAG, "扫描到设备："+result.getDevice().getName());
+                if(result.getDevice().getName()!=null){
+                    Log.i(TAG, String.format("扫描到设备：%s, %s", result.getDevice().getName(), result.getDevice().getAddress()));
+                }
             }
 
             @Override
