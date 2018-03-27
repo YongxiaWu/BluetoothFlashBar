@@ -3,9 +3,11 @@ package com.lab.bluetoothflashbar;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -102,7 +104,14 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 BluetoothDevice device = devices.get(i);
                 Log.i(TAG, "点击了设备：" + device.getName());
-//                device.connectGatt(MainActivity.this, )
+                BluetoothGatt gatt = device.connectGatt(MainActivity.this, true, new GattCallbackImpl());
+                if(gatt.connect()){// 如果连接成功
+                    Utils.currentDevice = device;
+                    Utils.gatt = gatt;
+                    // 跳转到下一活动
+                    Intent intent = new Intent(MainActivity.this, ModifyActivity.class);
+                    startActivity(intent);
+                }
             }
         });
     }
