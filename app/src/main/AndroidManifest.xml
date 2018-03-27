@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lab.bluetoothflashbar">
 
+    <!-- 蓝牙所需权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- 使用扫描和设置蓝牙的权限（申明这一个权限必须申明上面一个权限） -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 在 Android 6.0 及以上，还需要打开位置权限。如果应用没有位置权限，蓝牙扫描功能不能使用（其它蓝牙操作例如连接蓝牙设备和写入数据不受影响）。 -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,10 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ModifyActivity"></activity>
     </application>
 
-    <!-- 蓝牙所需权限 -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />  <!-- 使用扫描和设置蓝牙的权限（申明这一个权限必须申明上面一个权限） -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 在 Android 6.0 及以上，还需要打开位置权限。如果应用没有位置权限，蓝牙扫描功能不能使用（其它蓝牙操作例如连接蓝牙设备和写入数据不受影响）。-->
 </manifest>

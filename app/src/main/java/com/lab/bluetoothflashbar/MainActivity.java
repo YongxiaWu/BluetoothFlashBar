@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isScanning = false;  // 表示当前是否是扫描状态
     private BluetoothLeScanner scanner;
     List<BluetoothDevice> devices;
+    private DeviceListAdapter listAdapter;
     private Handler handler;
 
 
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
         devices = new ArrayList<>();
         handler = new Handler();
+        listAdapter = new DeviceListAdapter();
+        listVIewDevices.setAdapter(listAdapter);
 
         // 判断当前设备是否支持BLE蓝牙
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -75,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         scanner = bleAdapter.getBluetoothLeScanner();
 
+        // 点击按钮后切换扫描和停止扫描状态
         btnStartScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,8 +91,17 @@ public class MainActivity extends AppCompatActivity {
                     stopBleScan();
                     isScanning = false;
                     btnStartScan.setText("开始扫描");
-
+                    listAdapter.notifyDataSetChanged();
                 }
+            }
+        });
+
+        // 为listview的每个项设置点击事件
+        listVIewDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                BluetoothDevice device = devices.get(i);
+//                device.connectGatt(MainActivity.this, )
             }
         });
     }
@@ -134,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "扫描到一个设备："+result.getDevice().getName());
             if(result.getDevice().getName().startsWith("Flash")) {
                 devices.add(result.getDevice());
+                listAdapter.notifyDataSetChanged();
             }
         }
 
@@ -160,21 +175,33 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
+            if(devices==null){
+                return 0;
+            }
             return devices.size();
         }
 
         @Override
         public Object getItem(int position) {
+            if(devices==null || position>=devices.size()){
+                return null;
+            }
             return devices.get(position);
         }
 
         @Override
         public long getItemId(int position) {
+            if(devices==null || position>=devices.size()){
+                return -1;
+            }
             return position;
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            if(devices==null || position>=devices.size()){
+                return null;
+            }
             View view = View.inflate(MainActivity.this, R.layout.device_item, null);
             TextView deviceName = (TextView)view.findViewById(R.id.tv_device_name);
             TextView deviceMacAddress = (TextView)view.findViewById(R.id.tv_device_mac);
