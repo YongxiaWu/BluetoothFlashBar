@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -79,15 +81,15 @@ public class MainActivity extends AppCompatActivity {
                 if(!isScanning){
                     startBleScan();
                     isScanning = true;
+                    btnStartScan.setText("停止扫描");
                 }else{
                     stopBleScan();
                     isScanning = false;
+                    btnStartScan.setText("开始扫描");
+
                 }
             }
         });
-
-
-
     }
 
     /**
@@ -148,6 +150,40 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onScanFailed(int errorCode) {
             Log.e(TAG, "扫描失败");
+        }
+    }
+
+    /**
+     * 显示设备列表用的适配器
+     */
+    private class DeviceListAdapter extends BaseAdapter{
+
+        @Override
+        public int getCount() {
+            return devices.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return devices.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = View.inflate(MainActivity.this, R.layout.device_item, null);
+            TextView deviceName = (TextView)view.findViewById(R.id.tv_device_name);
+            TextView deviceMacAddress = (TextView)view.findViewById(R.id.tv_device_mac);
+
+            BluetoothDevice device = devices.get(position);
+            deviceName.setText(device.getName());
+            deviceMacAddress.setText(device.getAddress());
+
+            return view;
         }
     }
 }
