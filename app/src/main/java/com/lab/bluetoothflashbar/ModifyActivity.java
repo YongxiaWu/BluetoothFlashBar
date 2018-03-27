@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 public class ModifyActivity extends AppCompatActivity {
 
@@ -27,11 +30,16 @@ public class ModifyActivity extends AppCompatActivity {
     private TextView tvDisplay;
     private BluetoothGatt gatt;
     private BluetoothDevice device;
+    private BluetoothGattCharacteristic characteristic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify);
+
+        while (!GattCallbackImpl.discovered){
+            Log.i(TAG, "等待发现服务中。。。");
+        }
 
         editTextInput = (EditText)findViewById(R.id.et_input);
         checkBoxIsChinese = (CheckBox)findViewById(R.id.cb_is_chinese);
@@ -42,41 +50,25 @@ public class ModifyActivity extends AppCompatActivity {
 
         gatt = Utils.gatt;
         device = Utils.currentDevice;
-
-        display();
+        characteristic = Utils.characteristic;
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int i = Integer.valueOf(editTextInput.getText().toString());
-
+                String s = editTextInput.getText().toString();
+                byte[] bytes = s.getBytes();
+                send(bytes);
             }
         });
     }
 
-    private void send(byte b){
-    }
-
-    private void display(){
-
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("总的服务数："+gatt.getServices().size());
-        for(int i=0; i<gatt.getServices().size(); i++){
-            stringBuffer.append("Service "+i);
-            BluetoothGattService service = gatt.getServices().get(i);
-            for(int j=0; j<service.getCharacteristics().size(); j++){
-                stringBuffer.append("    Characteristic "+j);
-                BluetoothGattCharacteristic characteristic = service.getCharacteristics().get(j);
-                for(int k=0; k<characteristic.getDescriptors().size(); k++){
-                    BluetoothGattDescriptor descriptor = characteristic.getDescriptors().get(k);
-                    stringBuffer.append("        UUID: "+descriptor.getUuid());
-                    stringBuffer.append("        VALUE: "+ Arrays.toString(descriptor.getValue()));
-                }
-            }
+    private void send(byte[] bytes){
+        characteristic.setValue(bytes);
+        if(gatt.writeCharacteristic(characteristic)){
+            Log.i(TAG, "发送成功");
+        }else{
+            Log.i(TAG, "发送失败");
         }
-
-        tvDisplay.setText(stringBuffer.toString());
     }
-
 
 }
