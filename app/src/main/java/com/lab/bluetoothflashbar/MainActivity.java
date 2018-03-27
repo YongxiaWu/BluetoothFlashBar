@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         listVIewDevices = (ListView) findViewById(R.id.listview_ble_devices);
 
         devices = new ArrayList<>();
-        handler = new Handler();
+        handler = new Handler(){};
         listAdapter = new DeviceListAdapter();
         listVIewDevices.setAdapter(listAdapter);
 

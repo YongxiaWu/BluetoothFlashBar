@@ -4,12 +4,10 @@ package com.lab.bluetoothflashbar;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 /**
  * Created by ifish on 2018/3/27.
@@ -28,6 +26,7 @@ public class GattCallbackImpl extends BluetoothGattCallback {
             gatt.discoverServices();   // 则去搜索设备的服务(Service)和服务对应Characteristic
         } else {   // 连接失败
             Log.e(TAG, "连接失败");
+            Log.e(TAG, "状态："+status);
         }
     }
 
