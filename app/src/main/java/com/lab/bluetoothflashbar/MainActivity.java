@@ -15,9 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
     private DeviceListAdapter listAdapter;
     private Handler handler;
 
+    private Button tBtn;
+    private EditText etTTTT;
+    private boolean focus = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,23 @@ public class MainActivity extends AppCompatActivity {
         dynamicRequestPermission(Manifest.permission.BLUETOOTH);
         dynamicRequestPermission(Manifest.permission.BLUETOOTH_ADMIN);
         dynamicRequestPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+
+        tBtn = (Button)findViewById(R.id.tttt_btn);
+        etTTTT = (EditText)findViewById(R.id.ttt);
+        tBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etTTTT.setFocusable(focus);
+                etTTTT.setFocusableInTouchMode(focus);
+                if(focus){
+                    etTTTT.requestFocus();
+                }else {
+                    etTTTT.clearFocus();
+                }
+                focus = !focus;
+
+            }
+        });
 
         btnStartScan = (Button) findViewById(R.id.btn_start_scan);
         listVIewDevices = (ListView) findViewById(R.id.listview_ble_devices);
