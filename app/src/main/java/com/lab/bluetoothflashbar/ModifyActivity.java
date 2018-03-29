@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 public class ModifyActivity extends AppCompatActivity {
 
-    private static final String TAG = "MODIFY";
+    private static final String TAG = "BLE_DEBUG";
 
     private EditText editTextInput;
     private CheckBox checkBoxIsChinese;
@@ -31,6 +31,11 @@ public class ModifyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_modify);
 
         while (!GattCallbackImpl.discovered){
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             Log.i(TAG, "等待发现服务中。。。");
         }
 
@@ -49,13 +54,21 @@ public class ModifyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String s = editTextInput.getText().toString();
-                byte[] bytes = s.getBytes();
+                byte b = Byte.valueOf(s);
+
+//                byte[] bytes = s.getBytes();
+                byte[] bytes = new byte[20];
+                for(int i=0; i<20; i++){
+                    bytes[i] = (byte)(0x30+i);
+                }
+//                byte[] bytes = {b};
                 send(bytes);
             }
         });
     }
 
     private void send(byte[] bytes){
+
         characteristic.setValue(bytes);
         if(gatt.writeCharacteristic(characteristic)){
             Log.i(TAG, "发送成功");

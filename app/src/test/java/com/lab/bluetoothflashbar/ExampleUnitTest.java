@@ -14,6 +14,6 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
-        System.out.println(Utils.generate("fff0").toString());
+        System.out.println(Integer.toHexString(13));
     }
 }

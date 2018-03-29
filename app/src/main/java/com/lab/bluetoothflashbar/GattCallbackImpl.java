@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 public class GattCallbackImpl extends BluetoothGattCallback {
 
-    private static final String TAG = "GATT_CALLBACK";
+    private static final String TAG = "BLE_DEBUG";
 
     public static volatile boolean discovered = false;
 
@@ -41,11 +41,13 @@ public class GattCallbackImpl extends BluetoothGattCallback {
     @Override
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         Log.i(TAG, "向设备发送信息:"+Arrays.toString(characteristic.getValue()));
+        Log.i(TAG, "状态："+Integer.toHexString(status));
     }
 
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         Log.i(TAG, "向设备读取信息:"+Arrays.toString(characteristic.getValue()));
+        Log.i(TAG, "状态："+status);
     }
 
     @Override
