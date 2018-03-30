@@ -30,14 +30,7 @@ public class ModifyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify);
 
-        while (!GattCallbackImpl.discovered){
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Log.i(TAG, "等待发现服务中。。。");
-        }
+        while (!GattCallbackImpl.discovered);
 
         editTextInput = (EditText)findViewById(R.id.et_input);
         checkBoxIsChinese = (CheckBox)findViewById(R.id.cb_is_chinese);
@@ -57,11 +50,11 @@ public class ModifyActivity extends AppCompatActivity {
                 byte b = Byte.valueOf(s);
 
 //                byte[] bytes = s.getBytes();
-                byte[] bytes = new byte[20];
-                for(int i=0; i<20; i++){
-                    bytes[i] = (byte)(0x30+i);
-                }
-//                byte[] bytes = {b};
+//                byte[] bytes = new byte[20];
+//                for(int i=0; i<20; i++){
+//                    bytes[i] = (byte)(0x30+i);
+//                }
+                byte[] bytes = {b};
                 send(bytes);
             }
         });

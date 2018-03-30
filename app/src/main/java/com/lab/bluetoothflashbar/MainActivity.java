@@ -29,7 +29,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MAIN";
+    private static final String TAG = "BLE_DEBUG";
 
     private Button btnStartScan;
     private ListView listVIewDevices;
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             Log.i(TAG, "扫描到一个设备：" + result.getDevice().getName());
 
-            if (result != null && result.getDevice() != null && result.getDevice().getName() != null && result.getDevice().getName().startsWith("Flash")) {
+            if (result != null && result.getDevice() != null && result.getDevice().getName() != null) {
                 if (devices.contains(result.getDevice())) {
                     Log.i(TAG, "该设备已经扫描过了");
                     return;

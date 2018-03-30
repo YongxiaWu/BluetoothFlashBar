@@ -17,7 +17,7 @@ public class Utils {
     public static BluetoothGattCharacteristic characteristic;
 
     public static final String SERVICE_UUID = "fff0";
-    public static final String CHARACTERISTIC_UUID = "fff6";
+    public static final String CHARACTERISTIC_UUID = "fff3";
 
     public static UUID generate(String chid){
         String s = "0000"+chid+"-0000-1000-8000-00805f9b34fb";

@@ -26,12 +26,13 @@ public class GattCallbackImpl extends BluetoothGattCallback {
             gatt.discoverServices();   // 则去搜索设备的服务(Service)和服务对应Characteristic
         } else {   // 连接失败
             Log.e(TAG, "连接失败");
-            Log.e(TAG, "状态："+status);
+            Log.e(TAG, "状态："+status+", "+newState);
         }
     }
 
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+        Log.i(TAG, "发现服务");
         BluetoothGattService service = gatt.getService(Utils.generate(Utils.SERVICE_UUID));
         BluetoothGattCharacteristic characteristic = service.getCharacteristic(Utils.generate(Utils.CHARACTERISTIC_UUID));
         Utils.characteristic = characteristic;
