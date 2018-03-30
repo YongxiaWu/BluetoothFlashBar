@@ -42,11 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private DeviceListAdapter listAdapter;
     private Handler handler;
 
-    private Button tBtn;
-    private EditText etTTTT;
-    private boolean focus = true;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,23 +51,6 @@ public class MainActivity extends AppCompatActivity {
         dynamicRequestPermission(Manifest.permission.BLUETOOTH);
         dynamicRequestPermission(Manifest.permission.BLUETOOTH_ADMIN);
         dynamicRequestPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
-
-        tBtn = (Button)findViewById(R.id.tttt_btn);
-        etTTTT = (EditText)findViewById(R.id.ttt);
-        tBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                etTTTT.setFocusable(focus);
-                etTTTT.setFocusableInTouchMode(focus);
-                if(focus){
-                    etTTTT.requestFocus();
-                }else {
-                    etTTTT.clearFocus();
-                }
-                focus = !focus;
-
-            }
-        });
 
         btnStartScan = (Button) findViewById(R.id.btn_start_scan);
         listVIewDevices = (ListView) findViewById(R.id.listview_ble_devices);
@@ -127,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 BluetoothDevice device = devices.get(i);
                 Log.i(TAG, "点击了设备：" + device.getName());
-                BluetoothGatt gatt = device.connectGatt(MainActivity.this, true, new GattCallbackImpl());
+
+                BluetoothGatt gatt = device.connectGatt(MainActivity.this, true, new GattCallbackImpl(), BluetoothDevice.TRANSPORT_LE);
                 if(gatt.connect()){// 如果连接成功
                     Utils.currentDevice = device;
                     Utils.gatt = gatt;

@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ModifyActivity extends AppCompatActivity {
 
@@ -30,18 +31,12 @@ public class ModifyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify);
 
-        while (!GattCallbackImpl.discovered);
-
         editTextInput = (EditText)findViewById(R.id.et_input);
         checkBoxIsChinese = (CheckBox)findViewById(R.id.cb_is_chinese);
         btnSend = (Button)findViewById(R.id.btn_send);
         btnBack = (Button)findViewById(R.id.btn_back);
 
         tvDisplay = (TextView)findViewById(R.id.tv_dis);
-
-        gatt = Utils.gatt;
-        device = Utils.currentDevice;
-        characteristic = Utils.characteristic;
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,6 +56,17 @@ public class ModifyActivity extends AppCompatActivity {
     }
 
     private void send(byte[] bytes){
+
+        if(!GattCallbackImpl.discovered){
+            Toast.makeText(this, "未连接至蓝牙", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if(gatt==null || device==null || characteristic==null){
+            gatt = Utils.gatt;
+            device = Utils.currentDevice;
+            characteristic = Utils.characteristic;
+        }
 
         characteristic.setValue(bytes);
         if(gatt.writeCharacteristic(characteristic)){

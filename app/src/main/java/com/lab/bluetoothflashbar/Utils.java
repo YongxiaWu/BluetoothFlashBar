@@ -12,9 +12,9 @@ import java.util.UUID;
 
 public class Utils {
 
-    public static BluetoothDevice currentDevice;
-    public static BluetoothGatt gatt;
-    public static BluetoothGattCharacteristic characteristic;
+    public static volatile BluetoothDevice currentDevice;
+    public static volatile BluetoothGatt gatt;
+    public static volatile BluetoothGattCharacteristic characteristic;
 
     public static final String SERVICE_UUID = "fff0";
     public static final String CHARACTERISTIC_UUID = "fff3";
