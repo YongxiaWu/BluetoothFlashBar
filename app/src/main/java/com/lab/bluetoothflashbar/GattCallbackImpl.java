@@ -35,8 +35,14 @@ public class GattCallbackImpl extends BluetoothGattCallback {
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         Log.i(TAG, "发现服务:"+gatt.getServices().size());
         BluetoothGattService service = gatt.getService(Utils.generate(Utils.SERVICE_UUID));
-        BluetoothGattCharacteristic characteristic = service.getCharacteristic(Utils.generate(Utils.CHARACTERISTIC_UUID));
-        Utils.characteristic = characteristic;
+        BluetoothGattCharacteristic characteristicWrite = service.getCharacteristic(Utils.generate(Utils.CHARACTERISTIC_WRITE_UUID));
+        Utils.characteristicWrite = characteristicWrite;
+        Log.i(TAG, "发现写入特征："+characteristicWrite.getUuid().toString());
+
+        BluetoothGattCharacteristic characteristicRead = service.getCharacteristic(Utils.generate(Utils.CHARACTERISTIC_READ_UUID));
+        Utils.characteristicRead = characteristicRead;
+        Log.i(TAG, "发现读取特征："+characteristicRead.getUuid().toString());
+
         discovered = true;
     }
 

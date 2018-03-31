@@ -25,8 +25,8 @@
         android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/btn_back"
-        android:text="返回"
+        android:id="@+id/btn_read"
+        android:text="读取"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
