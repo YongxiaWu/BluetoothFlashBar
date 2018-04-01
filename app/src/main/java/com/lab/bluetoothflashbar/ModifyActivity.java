@@ -52,56 +52,56 @@ public class ModifyActivity extends AppCompatActivity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String s = editTextNum.getText().toString();
-                boolean isF = "1".equals(s);
-                byte[] buffer = new byte[20];
-                if (isF) {
-                    buffer[0] = 1;
+                String content = editTextInput.getText().toString().trim();
+                String num = editTextNum.getText().toString();
+                boolean isFirst = "1".equals(num.trim());
+                byte[] zimos = new byte[128];
+                int zimoIndex = 0;
+                byte[] chas = new byte[8];
 
-                } else {
-                    buffer[0] = 2;
-                }
-                s = editTextInput.getText().toString();
-                if (s == null || s.trim().length() == 0 || s.trim().length() > 4) {
-                    Toast.makeText(ModifyActivity.this, "请输入长度为1-4的字符串", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                String[] ss = s.trim().split("");
-                byte[] buffers = new byte[128];
-                int index = 0;
-                for (int i=0; i<ss.length; i++) {
-                    String s1 = ss[i];
-                    byte[] bf1 = Hzk16Uttils.readSingle(s1);
-                    if (bf1 == null) {
-                        bf1 = AsciiZimoUtils.readSingleAsciiZimo(s1);
+                for (int i = 0; i < content.length(); i++) {
+                    String word = String.valueOf(content.charAt(i));
+                    byte[] zimo = Hzk16Uttils.readSingle(word);
+                    if (zimo == null) {
+                        // 说明不是汉字
+                        chas[2 * i] = 0;
+                        chas[2 * i + 1] = (byte) content.charAt(i);
+                        zimo = AsciiZimoUtils.readSingleAsciiZimo(word);
+                    } else {
+                        try {
+                            chas[2 * i] = word.getBytes("GB2312")[0];
+                            chas[2 * i + 1] = word.getBytes("GB2312")[1];
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    if (bf1 == null) {
+
+                    if (zimo == null) {
                         Toast.makeText(ModifyActivity.this, "请输入合法字符", Toast.LENGTH_LONG).show();
                         return;
                     }
-                    System.arraycopy(bf1, 0, buffers, index, bf1.length);
-                    index+=bf1.length;
+
+                    System.arraycopy(zimo, 0, zimos, zimoIndex, zimo.length);
+                    zimoIndex += zimo.length;
                 }
-                byte[] chas = new byte[8];
-                try {
-                    byte[] bb = s.trim().getBytes("GB2312");
-                    System.arraycopy(bb, 0, chas, 0, bb.length);
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+
+                // 发送信息
+                byte[] buffer = new byte[20];
+                if(isFirst){
+                    buffer[0] = 1;
+                }else{
+                    buffer[0] = 2;
                 }
-                byte i = 0;
-                for (i = 0; i >= 0 && i <= 112; i += 16) {
-                    int k = i/16;
+                for(byte i=0; i>=0 && i<=112; i+=16){
                     buffer[1] = i;
-                    if(k<4) {
-                        buffer[2] = chas[2 * i];
-                        buffer[3] = chas[2 * i + 1];
+                    if(i<=48){
+                        buffer[2]=chas[2*i/16];
+                        buffer[3]=chas[2*i/16+1];
                     }
-                    System.arraycopy(buffers, i, buffer, 4, 16);
-                    Log.i(TAG, "开始发送：" + Arrays.toString(buffer));
+                    System.arraycopy(zimos, i, buffer, 4, 16);
                     send(buffer);
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(2000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -118,7 +118,7 @@ public class ModifyActivity extends AppCompatActivity {
     }
 
     private void send(byte[] bytes) {
-
+        Log.i(TAG, "发送信息："+Arrays.toString(bytes));
         if (!GattCallbackImpl.discovered) {
             Toast.makeText(this, "未连接至蓝牙", Toast.LENGTH_LONG).show();
             return;

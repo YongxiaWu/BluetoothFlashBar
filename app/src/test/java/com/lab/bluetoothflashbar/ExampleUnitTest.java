@@ -1,10 +1,10 @@
 package com.lab.bluetoothflashbar;
 
+import com.yyb.Hzk16Uttils;
+
 import org.junit.Test;
 
-import java.util.UUID;
-
-import static org.junit.Assert.*;
+import java.util.Arrays;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -14,6 +14,8 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
-        System.out.println(Integer.toHexString(13));
+        String a = "哦";
+        byte[] bs = Hzk16Uttils.readSingle(a);
+        System.out.println(Arrays.toString(bs));
     }
 }
