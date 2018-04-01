@@ -3,20 +3,23 @@ package com.lab.bluetoothflashbar;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +29,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MAIN";
+    private static final String TAG = "BLE_DEBUG";
 
     private Button btnStartScan;
     private ListView listVIewDevices;
@@ -34,10 +37,10 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothAdapter bleAdapter;
     private boolean isScanning = false;  // 表示当前是否是扫描状态
     private BluetoothLeScanner scanner;
+    private BleScanCallback bleScanCallback;   // 需要持有该callback的引用
     List<BluetoothDevice> devices;
     private DeviceListAdapter listAdapter;
     private Handler handler;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         listVIewDevices = (ListView) findViewById(R.id.listview_ble_devices);
 
         devices = new ArrayList<>();
-        handler = new Handler();
+        handler = new Handler(){};
         listAdapter = new DeviceListAdapter();
         listVIewDevices.setAdapter(listAdapter);
 
@@ -83,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
         btnStartScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!isScanning){
+                if (!isScanning) {
                     startBleScan();
                     isScanning = true;
                     btnStartScan.setText("停止扫描");
-                }else{
+                } else {
                     stopBleScan();
                     isScanning = false;
                     btnStartScan.setText("开始扫描");
@@ -101,7 +104,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 BluetoothDevice device = devices.get(i);
-//                device.connectGatt(MainActivity.this, )
+                Log.i(TAG, "点击了设备：" + device.getName());
+
+                BluetoothGatt gatt = device.connectGatt(MainActivity.this, true, new GattCallbackImpl(), BluetoothDevice.TRANSPORT_LE);
+                if(gatt.connect()){// 如果连接成功
+                    Utils.currentDevice = device;
+                    Utils.gatt = gatt;
+                    // 跳转到下一活动
+                    Intent intent = new Intent(MainActivity.this, ModifyActivity.class);
+                    startActivity(intent);
+                }
             }
         });
     }
@@ -111,24 +123,28 @@ public class MainActivity extends AppCompatActivity {
      */
     private void startBleScan() {
         final BluetoothLeScanner scanner = bleAdapter.getBluetoothLeScanner();
+        bleScanCallback = new BleScanCallback();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                scanner.stopScan(new BleScanCallback());
+                scanner.stopScan(bleScanCallback);
+                btnStartScan.setText("开始扫描");
+                isScanning = false;
             }
         }, 5000);
 
         // 开始扫描
-        scanner.startScan(new BleScanCallback());
+        scanner.startScan(bleScanCallback);
     }
 
     /**
      * 停止扫描
      */
-    private void stopBleScan(){
-        if(scanner!=null && bleAdapter!=null && bleAdapter.isDiscovering()){
-            // 此处必需传入的是在开启扫描时的回调类对象
-            scanner.stopScan(new BleScanCallback());
+    private void stopBleScan() {
+        Log.i(TAG, "停止扫描1：" + scanner);
+        Log.i(TAG, "停止扫描2：" + bleAdapter);
+        if (scanner != null) {
+            scanner.stopScan(bleScanCallback);
         }
     }
 
@@ -143,14 +159,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 蓝牙扫描的回调函数
-     */
-    private class BleScanCallback extends ScanCallback{
+    private class BleScanCallback extends ScanCallback {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            Log.i(TAG, "扫描到一个设备："+result.getDevice().getName());
-            if(result.getDevice().getName().startsWith("Flash")) {
+            Log.i(TAG, "扫描到一个设备：" + result.getDevice().getName());
+
+            if (result != null && result.getDevice() != null && result.getDevice().getName() != null) {
+                if (devices.contains(result.getDevice())) {
+                    Log.i(TAG, "该设备已经扫描过了");
+                    return;
+                }
                 devices.add(result.getDevice());
                 listAdapter.notifyDataSetChanged();
             }
@@ -158,9 +176,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
-            Log.i(TAG, "扫描到一堆设备："+results.size());
-            for(ScanResult r:results){
-                if(r.getDevice().getName().startsWith("Flash")) {
+            Log.i(TAG, "扫描到一堆设备：" + results.size());
+            for (ScanResult r : results) {
+                if (r.getDevice().getName().startsWith("Flash")) {
                     devices.add(r.getDevice());
                 }
             }
@@ -175,11 +193,11 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 显示设备列表用的适配器
      */
-    private class DeviceListAdapter extends BaseAdapter{
+    private class DeviceListAdapter extends BaseAdapter {
 
         @Override
         public int getCount() {
-            if(devices==null){
+            if (devices == null) {
                 return 0;
             }
             return devices.size();
@@ -187,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Object getItem(int position) {
-            if(devices==null || position>=devices.size()){
+            if (devices == null || position >= devices.size()) {
                 return null;
             }
             return devices.get(position);
@@ -195,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public long getItemId(int position) {
-            if(devices==null || position>=devices.size()){
+            if (devices == null || position >= devices.size()) {
                 return -1;
             }
             return position;
@@ -203,12 +221,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            if(devices==null || position>=devices.size()){
+            if (devices == null || position >= devices.size()) {
                 return null;
             }
             View view = View.inflate(MainActivity.this, R.layout.device_item, null);
-            TextView deviceName = (TextView)view.findViewById(R.id.tv_device_name);
-            TextView deviceMacAddress = (TextView)view.findViewById(R.id.tv_device_mac);
+            TextView deviceName = (TextView) view.findViewById(R.id.tv_device_name);
+            TextView deviceMacAddress = (TextView) view.findViewById(R.id.tv_device_mac);
 
             BluetoothDevice device = devices.get(position);
             deviceName.setText(device.getName());

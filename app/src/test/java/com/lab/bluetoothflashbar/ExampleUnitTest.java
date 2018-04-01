@@ -2,6 +2,8 @@ package com.lab.bluetoothflashbar;
 
 import org.junit.Test;
 
+import java.util.UUID;
+
 import static org.junit.Assert.*;
 
 /**
@@ -12,7 +14,6 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
-        char c = '1';
-        System.out.println(Integer.toHexString(c));
+        System.out.println(Integer.toHexString(13));
     }
 }
