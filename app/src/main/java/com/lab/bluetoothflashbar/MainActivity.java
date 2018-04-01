@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void stopBleScan(){
         if(scanner!=null && bleAdapter!=null && bleAdapter.isDiscovering()){
+            // 此处必需传入的是在开启扫描时的回调类对象
             scanner.stopScan(new BleScanCallback());
         }
     }
@@ -142,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 蓝牙扫描的回调函数
+     */
     private class BleScanCallback extends ScanCallback{
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
