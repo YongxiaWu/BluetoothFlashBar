@@ -1,5 +1,5 @@
 package com.lab.bluetoothflashbar;
-//上传本地Git
+//上传本地Github
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
